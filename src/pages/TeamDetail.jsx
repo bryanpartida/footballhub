@@ -2,9 +2,12 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/footballData";
 import { format } from "date-fns";
+import FavoriteButton from "../components/FavoriteButton";
+import { useFavorites } from "../features/favorites/useFavorites";
 
 export default function TeamDetail() {
   const { teamId } = useParams();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const teamQuery = useQuery({
     queryKey: ["team", teamId],
@@ -22,10 +25,11 @@ export default function TeamDetail() {
   const matches = matchesQuery.data?.matches ?? [];
 
   const crest = team?.crest || team?.crestUrl;
+  const favorite = team ? isFavorite(team.id) : false;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           {team && (
             <img
@@ -48,12 +52,21 @@ export default function TeamDetail() {
           </div>
         </div>
 
-        <Link
-          to="/leagues"
-          className="px-4 py-2 rounded-md bg-slate-800 text-white hover:bg-slate-700"
-        >
-          Back to Leagues
-        </Link>
+        <div className="flex items-center gap-3">
+          {team && (
+            <FavoriteButton
+              isActive={favorite}
+              onClick={() => toggleFavorite(team.id)}
+            />
+          )}
+
+          <Link
+            to="/leagues"
+            className="px-4 py-2 rounded-md bg-slate-800 text-white hover:bg-slate-700"
+          >
+            Back to Leagues
+          </Link>
+        </div>
       </div>
 
       {(teamQuery.isError || matchesQuery.isError) && (
@@ -72,7 +85,7 @@ export default function TeamDetail() {
             <div>
               <div className="text-slate-400">Website</div>
               <div className="text-white break-all hover:underline hover:cursor-pointer">
-                <a href={team.website || "—"} target="_blank" rel="">
+                <a href={team.website || "#"} target="_blank" rel="noreferrer">
                   {team.website || "—"}
                 </a>
               </div>

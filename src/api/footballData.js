@@ -47,6 +47,7 @@ export const api = {
   teams: (code) => footballGet(`/competitions/${code}/teams`),
   team: (id) => footballGet(`/teams/${id}`),
   teamMatches: (id, params) => footballGet(`/teams/${id}/matches`, params),
+  match: (id) => footballGet(`/matches/${id}`),
 };
 
 // league mapping for UI

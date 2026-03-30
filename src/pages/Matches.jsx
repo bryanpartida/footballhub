@@ -209,6 +209,14 @@ export default function Matches() {
                       </Link>
                     </div>
                   </div>
+                  <div className="mt-4 flex justify-end">
+                    <Link
+                      to={`/match/${m.id}`}
+                      className="text-sm text-white hover:underline"
+                    >
+                      View Match →
+                    </Link>
+                  </div>
                 </div>
               );
             })}

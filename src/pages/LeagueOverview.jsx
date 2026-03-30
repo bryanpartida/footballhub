@@ -275,6 +275,14 @@ export default function LeagueOverview() {
                         <span className="truncate">{m.awayTeam.name}</span>
                       </Link>
                     </div>
+                    <div className="mt-3 flex justify-end">
+                      <Link
+                        to={`/match/${m.id}`}
+                        className="text-sm text-white hover:underline"
+                      >
+                        View Match →
+                      </Link>
+                    </div>
                   </div>
                 );
               })}
