@@ -1,0 +1,3 @@
+General notes of future implementations:
+
+    - to have a first login into the page, selecting favorite team/teams in order to help display important information in home page
