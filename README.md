@@ -1,16 +1,82 @@
-# React + Vite
+# FootballHub ⚽
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern football companion web app that provides **contextual match insights**, helping fans understand not just what happened, but _why it matters_.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+- 🧠 **Matchday Companion**  
+  Contextual insights explaining match importance, standings implications, and team form.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- ⭐ **Favorite Teams Personalization**  
+  Save favorite teams and get a tailored experience with relevant matches and updates.
 
-## Expanding the ESLint configuration
+- 📊 **League Standings & Match Data**  
+  Explore standings, fixtures, and results across competitions.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🔥 **“3 Things to Know” Insights**  
+  Quick pre-match insights highlighting key storylines before kickoff.
+
+- 🎮 **Trivia & Engagement**  
+  Interactive features to enhance user engagement and retention.
+
+---
+
+## 🧠 Vision
+
+FootballHub transforms how users consume football data.
+
+Instead of only displaying statistics, it helps answer:
+
+- What’s happening?
+- Why does it matter?
+- What should I pay attention to?
+- What might happen next?
+
+The goal is to create a **smart matchday companion** that delivers meaningful context around matches, teams, and leagues.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend:** React (Vite)
+- **Data Fetching:** TanStack Query
+- **Styling:** Tailwind CSS
+- **Routing:** React Router
+- **API:** football-data.org
+
+---
+
+## 📸 Screenshots
+
+<!-- Add screenshots here -->
+<!-- Example:
+![Home](./screenshots/home.png)
+![Match Page](./screenshots/match.png)
+-->
+
+---
+
+## 🔗 Live Demo
+
+👉 https://your-footballhub-url.vercel.app -- example (real one coming)
+
+---
+
+## ⚙️ Installation & Setup
+
+```bash
+git clone https://github.com/yourusername/footballhub.git
+cd footballhub
+npm install
+npm run dev
+```
+
+## 🔐 Environment Variables
+
+Create a .env.local file in the root directory:
+
+```bash
+VITE_FOOTBALL_DATA_TOKEN=your_api_key_here
+```
