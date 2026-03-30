@@ -60,14 +60,12 @@ The goal is to create a **smart matchday companion** that delivers meaningful co
 
 ## 🔗 Live Demo
 
-👉 https://your-footballhub-url.vercel.app -- example (real one coming)
-
 ---
 
 ## ⚙️ Installation & Setup
 
 ```bash
-git clone https://github.com/yourusername/footballhub.git
+git clone https://github.com/bryanpartida/footballhub.git
 cd footballhub
 npm install
 npm run dev
