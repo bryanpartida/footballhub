@@ -1,3 +1,6 @@
+// TODO: add creat for teams in team page
+// TODO: add match link to game displayed in team page
+
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/footballData";

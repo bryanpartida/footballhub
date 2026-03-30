@@ -1,3 +1,9 @@
+// TODO: fix favorite dipslay
+// TODO: diplsay most important matches based on team favorited
+// TODO: what to know today worked out
+
+// NOTE: might want to update design in future
+
 import { Link } from "react-router-dom";
 import {
   Trophy,
@@ -171,7 +177,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 min-w-[260px]">
+            <div className="grid grid-cols-2 gap-4 min-w-260px">
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
                 <div className="text-slate-400 text-xs uppercase tracking-wide">
                   Focus
