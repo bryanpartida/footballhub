@@ -1,12 +1,63 @@
-// TODO: add crest for teams in team page
-// TODO: add match link to game displayed in team page
-
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/footballData";
 import { format } from "date-fns";
 import FavoriteButton from "../components/FavoriteButton";
 import { useFavorites } from "../features/favorites/useFavorites";
+
+function TeamMiniBadge({ team, align = "left" }) {
+  const crest = team?.crest || team?.crestUrl;
+
+  return (
+    <div
+      className={`flex items-center gap-3 min-w-0 ${
+        align === "right" ? "justify-end" : ""
+      }`}
+    >
+      {align === "right" ? (
+        <>
+          <div className="min-w-0">
+            <div className="text-white truncate text-sm md:text-base">
+              {team?.name || "—"}
+            </div>
+          </div>
+
+          {crest ? (
+            <img
+              src={crest}
+              alt={`${team?.name || "Team"} crest`}
+              className="w-7 h-7 md:w-8 md:h-8 object-contain shrink-0"
+              loading="lazy"
+              onError={(e) => (e.currentTarget.style.display = "none")}
+            />
+          ) : (
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-800 border border-slate-700 shrink-0" />
+          )}
+        </>
+      ) : (
+        <>
+          {crest ? (
+            <img
+              src={crest}
+              alt={`${team?.name || "Team"} crest`}
+              className="w-7 h-7 md:w-8 md:h-8 object-contain shrink-0"
+              loading="lazy"
+              onError={(e) => (e.currentTarget.style.display = "none")}
+            />
+          ) : (
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-800 border border-slate-700 shrink-0" />
+          )}
+
+          <div className="min-w-0">
+            <div className="text-white truncate text-sm md:text-base">
+              {team?.name || "—"}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function TeamDetail() {
   const { teamId } = useParams();
@@ -102,7 +153,9 @@ export default function TeamDetail() {
           <h2 className="text-white font-semibold">
             Recent / Upcoming Matches
           </h2>
-          <p className="text-xs text-slate-400">Showing up to 10 matches</p>
+          <p className="text-xs text-slate-400">
+            Showing up to 10 matches · click a match to view details
+          </p>
         </div>
 
         {matchesQuery.isLoading && (
@@ -114,28 +167,39 @@ export default function TeamDetail() {
             {matches.map((m) => {
               const utc = m.utcDate ? new Date(m.utcDate) : null;
               const dateLabel = utc ? format(utc, "MMM d, yyyy") : "—";
+
+              const homeScore = m.score?.fullTime?.home;
+              const awayScore = m.score?.fullTime?.away;
+
               const score =
-                m.score?.fullTime?.home !== null &&
-                m.score?.fullTime?.away !== null
-                  ? `${m.score.fullTime.home} - ${m.score.fullTime.away}`
-                  : "—";
+                homeScore !== null &&
+                homeScore !== undefined &&
+                awayScore !== null &&
+                awayScore !== undefined
+                  ? `${homeScore} - ${awayScore}`
+                  : "vs";
 
               return (
-                <div key={m.id} className="p-4 md:p-6">
-                  <div className="text-xs text-slate-400">{dateLabel}</div>
-                  <div className="mt-1 grid md:grid-cols-3 gap-3 items-center">
-                    <div className="text-white">{m.homeTeam?.name}</div>
-                    <div className="text-center text-white font-semibold">
-                      {score}{" "}
-                      <span className="text-xs text-slate-400">
-                        ({m.status})
-                      </span>
-                    </div>
-                    <div className="text-white md:text-right">
-                      {m.awayTeam?.name}
-                    </div>
+                <Link
+                  key={m.id}
+                  to={`/match/${m.id}`}
+                  className="block p-4 md:p-6 hover:bg-slate-950 transition"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs text-slate-400">{dateLabel}</div>
+                    <div className="text-xs text-slate-500">{m.status}</div>
                   </div>
-                </div>
+
+                  <div className="mt-3 grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+                    <TeamMiniBadge team={m.homeTeam} align="left" />
+
+                    <div className="text-center text-white font-semibold text-sm md:text-base">
+                      {score}
+                    </div>
+
+                    <TeamMiniBadge team={m.awayTeam} align="right" />
+                  </div>
+                </Link>
               );
             })}
 
