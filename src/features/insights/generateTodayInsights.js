@@ -52,6 +52,17 @@ export function generateTodayInsights({
       }
     }
 
+    const opponentAwareInsight = buildOpponentAwareInsight({
+      team,
+      nextMatch,
+      standingsTablesByLeague,
+      leagueMetaByCode,
+    });
+
+    if (opponentAwareInsight) {
+      insights.push(opponentAwareInsight);
+    }
+
     if (lastMatch && nextMatch && getResult(lastMatch, teamId) === "LOSS") {
       const daysToNext = daysUntil(nextMatch.utcDate);
       if (daysToNext <= 3) {
@@ -288,6 +299,98 @@ function getOpponentName(match, teamId) {
   if (match?.awayTeam?.id === teamId)
     return match?.homeTeam?.name || "its opponent";
   return "its opponent";
+}
+
+function buildOpponentAwareInsight({
+  team,
+  nextMatch,
+  standingsTablesByLeague,
+  leagueMetaByCode,
+}) {
+  if (!nextMatch?.competition?.code) return null;
+
+  const teamId = Number(team.id);
+  const leagueCode = nextMatch.competition.code;
+  const table = standingsTablesByLeague.get(leagueCode) || [];
+
+  if (!table.length) return null;
+
+  const teamRow = table.find((row) => row.team?.id === teamId);
+  const opponentId = getOpponentId(nextMatch, teamId);
+  const opponentRow = table.find((row) => row.team?.id === opponentId);
+
+  if (!teamRow || !opponentRow) return null;
+
+  const pointsGap = Math.abs((teamRow.points ?? 0) - (opponentRow.points ?? 0));
+  const positionGap = Math.abs(
+    (teamRow.position ?? 999) - (opponentRow.position ?? 999),
+  );
+
+  // Only care about genuinely close table battles
+  if (pointsGap > 3 || positionGap > 3) return null;
+
+  const opponentName = getOpponentName(nextMatch, teamId);
+  const leagueName =
+    leagueMetaByCode[leagueCode]?.name ||
+    nextMatch.competition?.name ||
+    leagueCode;
+
+  if ((teamRow.points ?? 0) === (opponentRow.points ?? 0)) {
+    return {
+      id: `opponent-level-${teamId}-${nextMatch.id}`,
+      teamId,
+      teamName: team.name,
+      teamCrest: team.crest || team.crestUrl || null,
+      tone: "amber",
+      badge: leagueName,
+      title: `${team.name} is level on points with ${opponentName}`,
+      body: `This is a direct table swing match in ${leagueName}, with both teams sitting on ${teamRow.points} points.`,
+      href: `/match/${nextMatch.id}`,
+      priority: 95,
+    };
+  }
+
+  if (opponentRow.position < teamRow.position) {
+    return {
+      id: `opponent-chase-${teamId}-${nextMatch.id}`,
+      teamId,
+      teamName: team.name,
+      teamCrest: team.crest || team.crestUrl || null,
+      tone: "sky",
+      badge: leagueName,
+      title: `${team.name} has a chance to gain ground`,
+      body: `${team.name} trails ${opponentName} by ${pointsGap} point${
+        pointsGap === 1 ? "" : "s"
+      } in ${leagueName}, making this a strong chance to tighten the race.`,
+      href: `/match/${nextMatch.id}`,
+      priority: 93,
+    };
+  }
+
+  if (opponentRow.position > teamRow.position) {
+    return {
+      id: `opponent-separation-${teamId}-${nextMatch.id}`,
+      teamId,
+      teamName: team.name,
+      teamCrest: team.crest || team.crestUrl || null,
+      tone: "emerald",
+      badge: leagueName,
+      title: `${team.name} can create breathing room`,
+      body: `${team.name} is only ${pointsGap} point${
+        pointsGap === 1 ? "" : "s"
+      } ahead of ${opponentName} in ${leagueName}, so this match could open a more comfortable gap.`,
+      href: `/match/${nextMatch.id}`,
+      priority: 92,
+    };
+  }
+
+  return null;
+}
+
+function getOpponentId(match, teamId) {
+  if (match?.homeTeam?.id === teamId) return match?.awayTeam?.id ?? null;
+  if (match?.awayTeam?.id === teamId) return match?.homeTeam?.id ?? null;
+  return null;
 }
 
 function getKickoffContext(utcDate) {

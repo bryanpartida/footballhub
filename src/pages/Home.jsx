@@ -397,7 +397,9 @@ export default function Home() {
       return dedupeMatches(leagueUpcomingMatches).slice(0, 5);
     }
 
-    const favoriteSet = dedupeMatches(favoriteUpcomingMatches).slice(0, 4);
+    const favoriteSet = dedupeMatches(favoriteUpcomingMatches)
+      .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate))
+      .slice(0, 4);
     const filler = dedupeMatches(leagueUpcomingMatches).filter(
       (leagueMatch) =>
         !favoriteSet.some((favMatch) => favMatch.id === leagueMatch.id),
@@ -462,19 +464,20 @@ export default function Home() {
     standingsTablesByLeague,
   ]);
 
-  const todayInsightsLoading =
-    favorites.length > 0 &&
-    (favoriteTeamQueries.some((q) => q.isLoading) ||
-      favoriteMatchQueries.some((q) => q.isLoading) ||
-      favoriteFinishedMatchQueries.some((q) => q.isLoading) ||
-      standingsQueries.some((q) => q.isLoading));
-
   const teamsLoading =
-    favoriteTeamQueries.some((q) => q.isLoading) && favorites.length > 0;
+    favorites.length > 0 &&
+    favoriteTeamQueries.some((q) => q.isLoading || q.isFetching);
 
   const matchesLoading =
-    competitionMatchQueries.some((q) => q.isLoading) ||
-    favoriteMatchQueries.some((q) => q.isLoading);
+    competitionMatchQueries.some((q) => q.isLoading || q.isFetching) ||
+    favoriteMatchQueries.some((q) => q.isLoading || q.isFetching);
+
+  const todayInsightsLoading =
+    favorites.length > 0 &&
+    (favoriteTeamQueries.some((q) => q.isLoading || q.isFetching) ||
+      favoriteMatchQueries.some((q) => q.isLoading || q.isFetching) ||
+      favoriteFinishedMatchQueries.some((q) => q.isLoading || q.isFetching) ||
+      standingsQueries.some((q) => q.isLoading || q.isFetching));
 
   return (
     <div className="space-y-10">
