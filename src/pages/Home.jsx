@@ -13,6 +13,8 @@ import { LEAGUES } from "../api/footballData";
 import { useCompetition } from "../hooks/useCompetition";
 import { useFavorites } from "../features/favorites/useFavorites";
 import logo from "../logo/footballhub-logo.png";
+import TodayInsightsGrid from "../components/TodayInsightsGrid";
+import { generateTodayInsights } from "../features/insights/generateTodayInsights";
 
 const API_BASE = "/api";
 
@@ -102,6 +104,17 @@ async function getCompetitionMatches(code) {
     dateFrom,
     dateTo,
   });
+}
+
+async function getFinishedTeamMatches(teamId) {
+  return apiGet(`/teams/${teamId}/matches`, {
+    status: "FINISHED",
+    limit: 5,
+  });
+}
+
+async function getCompetitionStandings(code) {
+  return apiGet(`/competitions/${code}/standings`);
 }
 
 function SectionHeader({ title, subtitle, action }) {
@@ -328,6 +341,22 @@ export default function Home() {
     })),
   });
 
+  const favoriteFinishedMatchQueries = useQueries({
+    queries: favorites.map((teamId) => ({
+      queryKey: ["team-finished-matches", teamId],
+      queryFn: () => getFinishedTeamMatches(teamId),
+      staleTime: 1000 * 60 * 5,
+    })),
+  });
+
+  const standingsQueries = useQueries({
+    queries: leagueList.map((league) => ({
+      queryKey: ["home-standings", league.code],
+      queryFn: () => getCompetitionStandings(league.code),
+      staleTime: 1000 * 60 * 10,
+    })),
+  });
+
   const favoriteTeams = useMemo(
     () =>
       favoriteTeamQueries
@@ -376,6 +405,69 @@ export default function Home() {
 
     return [...favoriteSet, ...filler].slice(0, 5);
   }, [favorites.length, favoriteUpcomingMatches, leagueUpcomingMatches]);
+
+  const scheduledMatchesByTeam = useMemo(() => {
+    const map = new Map();
+
+    favorites.forEach((teamId, index) => {
+      const matches = (favoriteMatchQueries[index]?.data?.matches || [])
+        .slice()
+        .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+
+      map.set(Number(teamId), matches);
+    });
+
+    return map;
+  }, [favorites, favoriteMatchQueries]);
+
+  const finishedMatchesByTeam = useMemo(() => {
+    const map = new Map();
+
+    favorites.forEach((teamId, index) => {
+      const matches = (favoriteFinishedMatchQueries[index]?.data?.matches || [])
+        .slice()
+        .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
+
+      map.set(Number(teamId), matches);
+    });
+
+    return map;
+  }, [favorites, favoriteFinishedMatchQueries]);
+
+  const standingsTablesByLeague = useMemo(() => {
+    const map = new Map();
+
+    leagueList.forEach((league, index) => {
+      map.set(
+        league.code,
+        standingsQueries[index]?.data?.standings?.[0]?.table ?? [],
+      );
+    });
+
+    return map;
+  }, [leagueList, standingsQueries]);
+
+  const todayInsights = useMemo(() => {
+    return generateTodayInsights({
+      favoriteTeams,
+      scheduledMatchesByTeam,
+      finishedMatchesByTeam,
+      standingsTablesByLeague,
+      leagueMetaByCode: LEAGUES,
+    });
+  }, [
+    favoriteTeams,
+    scheduledMatchesByTeam,
+    finishedMatchesByTeam,
+    standingsTablesByLeague,
+  ]);
+
+  const todayInsightsLoading =
+    favorites.length > 0 &&
+    (favoriteTeamQueries.some((q) => q.isLoading) ||
+      favoriteMatchQueries.some((q) => q.isLoading) ||
+      favoriteFinishedMatchQueries.some((q) => q.isLoading) ||
+      standingsQueries.some((q) => q.isLoading));
 
   const teamsLoading =
     favoriteTeamQueries.some((q) => q.isLoading) && favorites.length > 0;
@@ -556,23 +648,18 @@ export default function Home() {
       <section>
         <SectionHeader
           title="What to Know Today"
-          subtitle="A placeholder for the Matchday Companion insight layer."
+          subtitle={
+            favorites.length
+              ? "A smarter look at your teams' biggest storylines right now."
+              : "Save favorite teams to unlock a personalized matchday briefing."
+          }
         />
 
-        <div className="grid lg:grid-cols-3 gap-4">
-          <PlaceholderInsightCard
-            title="Why a result matters"
-            desc="Example: A win could move a team into Champions League places, while a loss could drop them behind a direct rival."
-          />
-          <PlaceholderInsightCard
-            title="Form and momentum"
-            desc="Example: A team may be unbeaten in five matches, or struggling after multiple losses in a row."
-          />
-          <PlaceholderInsightCard
-            title="What might happen next"
-            desc="Example: Later results in the same league could reshape the table depending on today’s outcome."
-          />
-        </div>
+        <TodayInsightsGrid
+          insights={todayInsights}
+          isLoading={todayInsightsLoading}
+          hasFavorites={favorites.length > 0}
+        />
       </section>
 
       <section>
