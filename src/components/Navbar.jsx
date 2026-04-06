@@ -21,6 +21,9 @@ export default function Navbar() {
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>
+          <NavLink to="/select-favorites" className={linkClass}>
+            Favorites
+          </NavLink>
           <NavLink to="/leagues" className={linkClass}>
             Leagues
           </NavLink>

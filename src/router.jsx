@@ -1,7 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Layout } from "./layouts/Layout";
 
+import HomeEntry from "./pages/HomeEntry";
 import Home from "./pages/Home";
+import SelectFavorites from "./pages/SelectFavorites";
 import Leagues from "./pages/Leagues";
 import LeagueOverview from "./pages/LeagueOverview";
 import Standings from "./pages/Standings";
@@ -17,7 +19,9 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <HomeEntry /> },
+      { path: "home", element: <Home /> },
+      { path: "select-favorites", element: <SelectFavorites /> },
       { path: "leagues", element: <Leagues /> },
 
       { path: "league/:code", element: <LeagueOverview /> },

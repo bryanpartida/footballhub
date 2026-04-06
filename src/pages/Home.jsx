@@ -552,7 +552,7 @@ export default function Home() {
                   Next step
                 </div>
                 <div className="text-white font-semibold mt-2">
-                  Matchday Companion
+                  Matchday companion improving
                 </div>
               </div>
             </div>
