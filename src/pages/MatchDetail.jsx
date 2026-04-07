@@ -87,7 +87,7 @@ export default function MatchDetail() {
             {matchQuery.isLoading ? "Loading match..." : "Match Detail"}
           </h1>
           <p className="text-slate-400 mt-1">
-            Context, form, and what this match means.
+            Context, storylines, and why this match matters.
           </p>
         </div>
 
@@ -165,20 +165,20 @@ export default function MatchDetail() {
             </div>
           </section>
 
-          <MatchdayCompanion insights={insights} />
+          <MatchdayCompanion items={insights.companion} />
 
           <section className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
             <div className="p-4 md:p-6 border-b border-slate-800">
               <h2 className="text-white font-semibold">Three Things to Know</h2>
               <p className="text-xs text-slate-400 mt-1">
-                A quick summary before kickoff or after the result.
+                A quicker factual scan before kickoff or after the result.
               </p>
             </div>
 
             <div className="p-4 md:p-6">
-              {insights.length ? (
+              {insights.quickFacts.length ? (
                 <ol className="space-y-3 list-decimal list-inside text-slate-200">
-                  {insights.map((item, index) => (
+                  {insights.quickFacts.map((item, index) => (
                     <li
                       key={index}
                       className="bg-slate-950 border border-slate-800 rounded-lg p-4"
@@ -189,8 +189,7 @@ export default function MatchDetail() {
                 </ol>
               ) : (
                 <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-400">
-                  Match insights will appear here once enough context is
-                  available.
+                  No quick match facts stand out yet.
                 </div>
               )}
             </div>
