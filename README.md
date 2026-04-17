@@ -1,21 +1,20 @@
-# FootballHub ⚽
+# FootballHub
 
-FootballHub is a football companion web app focused on **context**, not just raw match data.
+FootballHub is a football companion web app built around a single-club experience.
 
-The current version helps users follow matches, teams, and leagues while also surfacing lightweight insights such as team form, standings pressure, and upcoming-match storylines. The long-term idea is to move closer to a smarter matchday experience: a product that helps fans understand not only **what is happening**, but also **why it matters**.
+Instead of asking users to follow multiple favorite teams, the current product starts with one decision: choose one club at the beginning, then load a focused dashboard centered entirely on that team. The app is designed to make the experience feel personal, calm, and context-driven rather than like a generic fixture list.
 
 ---
 
 ## Overview
 
-A lot of football apps are already very good at listing fixtures, results, and tables. What interested me more with this project was the product question behind them:
+The project explores a product question more than a pure data question:
 
-- What should a fan notice first?
-- What makes a match important?
-- How can a homepage feel personal instead of generic?
-- How can context be surfaced without overwhelming the user?
+- What should a fan see first when they open a football app?
+- How can one team page feel like a daily destination instead of just a stats dump?
+- How can standings pressure, form, and upcoming fixtures be surfaced without overwhelming the user?
 
-FootballHub is my attempt at exploring those questions through a clean web app built around favorite teams, match pages, and a rules-based insight layer.
+FootballHub answers those questions with a selected-team flow, a club dashboard, and a lightweight rules-based context layer.
 
 ---
 
@@ -23,62 +22,57 @@ FootballHub is my attempt at exploring those questions through a clean web app b
 
 The app currently includes:
 
-- **Favorite teams personalization**
-  - Users can select favorite teams and get a more personalized homepage experience.
-- **League browsing**
-  - Explore supported competitions, standings, teams, and matches.
-- **Team pages**
-  - View team details and recent/upcoming matches.
-- **Match pages**
-  - Open individual matches and view contextual summaries (improvements in progress).
-- **Homepage insight sections**
-  - “Matches to Watch” prioritizes favorite teams and nearby important fixtures.
-  - “What to Know Today” surfaces lightweight storylines based on recent form, upcoming matches, and standings position.
-- **Trivia**
-  - A smaller engagement feature that complements the main football experience.
+- **Single-team onboarding**
+  - On first load, the user chooses one club from the supported leagues.
+- **Selected-team persistence**
+  - The chosen club is stored locally so returning users are brought back into their team experience.
+- **Club dashboard**
+  - The main page loads data specifically for the selected club, including summary context, recent form, upcoming fixtures, standings position, and squad information.
+- **Team-themed experience**
+  - The interface adapts styling and presentation around the selected club.
+- **Standings view**
+  - Users can open a league table that supports the selected-team experience rather than replacing it.
 
-This is **not** a full production sports platform, and it is not trying to compete feature-for-feature with larger products. The project is currently much more focused on the idea of a **smart football companion** and on building a polished, thoughtful product experience around that idea.
+Right now the experience is intentionally focused: enter the app, choose a club, and stay inside that club's daily dashboard.
 
 ---
 
 ## Product Direction
 
-The long-term direction for FootballHub is:
+The current direction for FootballHub is:
 
-> a football app that helps users understand what is happening, why it matters, what to watch for, and what might happen next.
+> a football app that helps one fan follow one team more intelligently every day.
 
-Right now, that vision is implemented through a **rules-based insight layer** rather than a deeply intelligent prediction system. That was a deliberate decision.
+That means the product is less about broad browsing across many teams and more about creating a premium-feeling dashboard for a user's chosen club.
 
-Instead of trying to over-engineer a perfect “football intelligence engine” too early, I focused first on:
+The current implementation emphasizes:
 
-- strong core navigation
-- a personalized homepage
-- clear team and match pages
-- contextual insights that are understandable and maintainable
-
-That keeps the app realistic, demoable, and easier to improve over time.
+- a strong first-run team selection flow
+- a focused club dashboard
+- concise context cards powered by match and standings data
+- a simple summary layer that explains why the current moment matters
 
 ---
 
 ## Why It Was Built This Way
 
-A few design decisions shaped the current version:
+A few design decisions shape the current version:
 
-### 1. Personalization first
+### 1. One team, not many
 
-The homepage is centered around favorite teams because that immediately makes the experience feel more useful and more product-like.
+The app no longer centers on multiple favorites. Choosing one club creates a clearer product identity and makes the homepage feel more intentional.
 
-### 2. Rules-based context instead of “magic”
+### 2. Context over volume
 
-The current insight system uses recent results, standings position, next matches, and opponent context to generate storylines. It is intentionally simple enough to be understandable and maintainable.
+Rather than showing everything from every competition, the app tries to surface the most relevant information for the selected club.
 
-### 3. Match and team pages as anchors
+### 3. Dashboard as the main destination
 
-Rather than only showing league-level data, the app gives users direct routes into team pages and match pages, where context can become more focused.
+The selected team's page is the product. Navigation and supporting pages exist to strengthen that experience, not to compete with it.
 
-### 4. Conservative data usage
+### 4. Practical API usage
 
-FootballHub uses the free football-data.org API tier, so the app has to be thoughtful about how much data it requests and when. That influenced how the homepage, favorites flow, and insight features were designed.
+FootballHub uses the free football-data.org API tier, so the app is built to stay useful while keeping requests relatively efficient.
 
 ---
 
@@ -93,100 +87,95 @@ FootballHub uses the free football-data.org API tier, so the app has to be thoug
 
 ---
 
+## Current User Flow
+
+1. Open the app.
+2. Choose one club from the supported leagues.
+3. Enter a club dashboard tailored to that team.
+4. Review summary context, standings pressure, upcoming matches, and squad information.
+5. Return later and continue from the same selected club.
+
+---
+
+## Supported Experience
+
+At the moment, the main experience is built around clubs from:
+
+- Premier League
+- La Liga
+
+The selected club drives the dashboard content and, where available, the related standings context.
+
+---
+
 ## Constraints and Tradeoffs
 
 This project intentionally works within a few limitations:
 
-- The app uses a **free API tier**, so requests need to be kept relatively efficient.
-- The current insight layer is **rules-based**, not predictive or AI-driven.
-- The supported competitions are currently focused on the leagues most relevant to the current product experience.
-- Some contextual statements are intentionally conservative, because they are generated from available API data rather than a much richer event/statistics model.
+- The app uses a **free API tier**, so requests need to stay efficient.
+- The summary/context layer is **rules-based**, not predictive or AI-driven.
+- The product is intentionally **single-team-first**, so broader multi-team exploration is no longer the primary use case.
+- Some sections remain intentionally lightweight because the current API does not provide richer event or player-performance depth.
 
-These constraints are part of the project, not just shortcomings. They pushed me to think more carefully about:
-
-- data prioritization
-- UX hierarchy
-- caching
-- product tradeoffs under real-world limits
+These constraints help keep the project realistic while still allowing the product direction to feel distinct.
 
 ---
 
 ## What Could Be Improved Next
 
-There are several directions I would take this further:
+Some natural next steps for the project would be:
 
-### Smarter context generation
+### Smarter team context
 
-The current storylines are useful, but they could become more sophisticated by:
+- better interpretation of recent form
+- stronger match importance logic
+- more nuanced standings-pressure narratives
+- richer editorial-style summaries
 
-- reasoning more deeply about opponent quality
-- detecting bigger table swings
-- modeling title-race / top-four / relegation pressure more intelligently
-- improving narrative wording so insights feel even more editorial
+### Stronger preference management
 
-### Better homepage orchestration
+- easier switching between selected clubs
+- clearer re-selection or reset controls
+- better first-run explanation of what the dashboard includes
 
-The homepage could become smarter about:
+### Richer club pages
 
-- which favorite-team matches to prioritize
-- how many storylines to show per team
-- balancing urgency, form, and table context
-
-### More complete onboarding and preference management
-
-The favorite-team selection flow is already part of the experience, but it could be expanded with:
-
-- clearer editing controls
-- stronger preference persistence
-- better first-run explanations
-
-### Broader data coverage
-
-If this were taken further with stronger API access or a more advanced backend, I would want to explore:
-
-- more competitions
-- richer player/team context
-- more advanced match importance logic
-- more dynamic homepage ranking
+- expanded squad details
+- more match-by-match context
+- additional competition coverage where the data supports it
 
 ### Production polish
 
-For a larger real-world version, I would likely add:
-
-- stronger error boundaries
-- better loading skeletons across all pages
-- analytics
-- testing coverage
+- stronger error states and empty states
+- more loading skeletons
+- better test coverage
 - a backend/cache layer to reduce direct client-side API pressure
 
 ---
 
 ## Why This Project Matters to Me
 
-I wanted this project to be more than “a football API app.”
+The goal of FootballHub is not just to display football data. The goal is to shape that data into an experience that feels focused, personal, and worth revisiting.
 
-The interesting part for me is the product challenge:
-how to turn football data into an experience that feels **helpful, focused, and worth returning to**.
+That is why the project currently emphasizes:
 
-That is why this project emphasizes:
-
-- user flow
-- hierarchy of information
+- product flow
+- information hierarchy
+- club identity
 - contextual summaries
-- product identity
 
-more than just raw API integration.
+more than breadth for its own sake.
 
 ---
 
 ## Screenshots
 
 ![Homepage - Header](./screenshots/home-1.png)
-![Favorites - Overview](./screenshots/home-2.png)
-![What To Know Today](./screenshots/home-3.png)
-![Explore Competitions](./screenshots/home-4.png)
-![League Teams Page](./screenshots/teams-page.png)
-![Favorites Selection](./screenshots/favorites-selection.png)
+![Club Dashboard](./screenshots/home-2.png)
+![Today Context](./screenshots/home-3.png)
+![League Selection View](./screenshots/home-4.png)
+![Standings Page](./screenshots/teams-page.png)
+![Team Selection](./screenshots/favorites-selection.png)
 
 ---
 
@@ -212,7 +201,7 @@ npm run dev
 
 ## Environment Variables
 
-Create a .env.local file in the project root:
+Create a `.env.local` file in the project root:
 
 ```bash
 VITE_FOOTBALL_DATA_TOKEN=your_api_key_here
