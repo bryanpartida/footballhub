@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const env = loadEnv(mode, ".", "");
+  const sportsDbKey = env.VITE_THE_SPORTS_DB_KEY || "123";
 
   return {
     plugins: [react(), tailwindcss()],
@@ -24,6 +25,12 @@ export default defineConfig(({ mode }) => {
               if (token) proxyReq.setHeader("X-Auth-Token", token);
             });
           },
+        },
+        "/sportsdb": {
+          target: "https://www.thesportsdb.com",
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/sportsdb/, `/api/v1/json/${sportsDbKey}`),
         },
       },
     },

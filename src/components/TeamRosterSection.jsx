@@ -4,6 +4,25 @@ import { Goal, Sparkles, Shirt, Shield, Flag, CalendarDays } from "lucide-react"
 import { api } from "../api/footballData";
 import { getFeaturedPlayers } from "../features/roster/getFeaturedPlayers";
 import { mapRosterPlayers } from "../features/roster/mapRosterPlayers";
+import { getPlayerPortrait } from "../features/roster/playerPlaceholder";
+import { useRosterPortraits } from "../features/roster/useRosterPortraits";
+
+function PlayerAvatar({ src, alt, className }) {
+    const fallbackSrc = getPlayerPortrait();
+
+    return (
+        <img
+            key={src || fallbackSrc}
+            src={src || fallbackSrc}
+            alt={alt}
+            className={className}
+            onError={(event) => {
+                if (event.currentTarget.src.endsWith(fallbackSrc)) return;
+                event.currentTarget.src = fallbackSrc;
+            }}
+        />
+    );
+}
 
 function FeaturedPlayerCard({ player, theme }) {
     return (
@@ -19,7 +38,7 @@ function FeaturedPlayerCard({ player, theme }) {
                 <div className="min-w-0">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                         <div className="h-28 w-28 shrink-0 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5">
-                            <img
+                            <PlayerAvatar
                                 src={player.portrait}
                                 alt={`${player.name} placeholder portrait`}
                                 className="h-full w-full object-cover opacity-85"
@@ -62,7 +81,7 @@ function PlayerCard({ player, theme }) {
         <article className="group rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition hover:border-white/20 hover:bg-white/7">
             <div className="flex items-start gap-4">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20">
-                    <img
+                    <PlayerAvatar
                         src={player.portrait}
                         alt={`${player.name} placeholder portrait`}
                         className="h-full w-full object-cover opacity-80 transition group-hover:scale-[1.02]"
@@ -131,6 +150,7 @@ function MetaRow({ icon, label, value }) {
 
 export default function TeamRosterSection({ team, theme }) {
     const players = useMemo(() => mapRosterPlayers(team?.squad || []), [team?.squad]);
+    const portraitMap = useRosterPortraits({ players, team });
     const competitions = useMemo(
         () => dedupeCompetitions(team?.runningCompetitions || []),
         [team?.runningCompetitions],
@@ -158,11 +178,23 @@ export default function TeamRosterSection({ team, theme }) {
     const { featuredPlayers, hasFeaturedStats } = useMemo(
         () =>
             getFeaturedPlayers({
-                players,
+                players: players.map((player) => ({
+                    ...player,
+                    portrait: portraitMap.get(player.id) || player.portrait,
+                })),
                 scorerSources,
                 teamId: team?.id,
             }),
-        [players, scorerSources, team?.id],
+        [players, portraitMap, scorerSources, team?.id],
+    );
+
+    const enrichedPlayers = useMemo(
+        () =>
+            players.map((player) => ({
+                ...player,
+                portrait: portraitMap.get(player.id) || player.portrait,
+            })),
+        [players, portraitMap],
     );
 
     const featuredIds = useMemo(
@@ -170,8 +202,8 @@ export default function TeamRosterSection({ team, theme }) {
         [featuredPlayers],
     );
     const rosterPlayers = useMemo(
-        () => players.filter((player) => !featuredIds.has(Number(player.id))),
-        [players, featuredIds],
+        () => enrichedPlayers.filter((player) => !featuredIds.has(Number(player.id))),
+        [enrichedPlayers, featuredIds],
     );
 
     return (
@@ -188,7 +220,7 @@ export default function TeamRosterSection({ team, theme }) {
                 <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-[1.25rem] border border-white/10 bg-black/20 px-4 py-3">
                         <div className="text-xs uppercase tracking-[0.16em] text-slate-500">Squad size</div>
-                        <div className="mt-2 text-2xl font-semibold text-white">{players.length}</div>
+                        <div className="mt-2 text-2xl font-semibold text-white">{enrichedPlayers.length}</div>
                     </div>
                     <div className="rounded-[1.25rem] border border-white/10 bg-black/20 px-4 py-3">
                         <div className="text-xs uppercase tracking-[0.16em] text-slate-500">Competitions</div>
@@ -218,7 +250,7 @@ export default function TeamRosterSection({ team, theme }) {
                 <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Full squad</div>
                 <h3 className="mt-2 text-xl font-semibold text-white">All available players</h3>
 
-                {players.length ? (
+                {enrichedPlayers.length ? (
                     <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         {rosterPlayers.map((player) => (
                             <PlayerCard key={player.id} player={player} theme={theme} />
