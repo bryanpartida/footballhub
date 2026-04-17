@@ -1,105 +1,87 @@
-import { useParams, Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../api/footballData";
-import LeagueHeader from "../components/LeagueHeader";
-import LeagueTabs from "../components/LeagueTabs";
+import { api, LEAGUES } from "../api/footballData";
+import { useSelectedTeam } from "../hooks/useSelectedTeam";
 
 export default function Standings() {
-  const { code } = useParams();
+  const { selectedTeam } = useSelectedTeam();
+  const [leagueCode, setLeagueCode] = useState(selectedTeam?.leagueCode || "PL");
 
   const standingsQuery = useQuery({
-    queryKey: ["standings", code],
-    queryFn: () => api.standings(code),
-    enabled: !!code,
+    queryKey: ["standings", leagueCode],
+    queryFn: () => api.standings(leagueCode),
+    enabled: !!leagueCode,
+    staleTime: 1000 * 60 * 10,
   });
 
-  const table = standingsQuery.data?.standings?.[0]?.table ?? [];
-
-  //   console.log(table[0]?.team);
+  const table = useMemo(() => standingsQuery.data?.standings?.[0]?.table || [], [standingsQuery.data]);
 
   return (
-    <div>
-      <LeagueHeader code={code} />
-      <LeagueTabs code={code} />
-
-      <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
-        {standingsQuery.isLoading && (
-          <div className="p-6 text-slate-300">Loading standings...</div>
-        )}
-        {standingsQuery.isError && (
-          <div className="p-6 text-red-300">
-            {standingsQuery.error.message || "Failed to load standings."}
+    <div className="space-y-6">
+      <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 backdrop-blur-xl">
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="text-xs uppercase tracking-[0.22em] text-slate-400">League tables</div>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">Standings</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+              Keep this page intentionally clean. It should support the selected-team experience, not compete with it.
+            </p>
           </div>
-        )}
 
-        {!!table.length && (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-800">
-                <tr className="text-slate-300 text-sm">
-                  <th className="text-left px-4 md:px-6 py-4">Pos</th>
-                  <th className="text-left px-4 md:px-6 py-4">Team</th>
-                  <th className="text-center px-2 md:px-3 py-4">P</th>
-                  <th className="text-center px-2 md:px-3 py-4">W</th>
-                  <th className="text-center px-2 md:px-3 py-4">D</th>
-                  <th className="text-center px-2 md:px-3 py-4">L</th>
-                  <th className="text-center px-2 md:px-3 py-4">GD</th>
-                  <th className="text-center px-2 md:px-3 py-4">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {table.map((row) => (
-                  <tr
-                    key={row.team.id}
-                    className="border-t border-slate-800 hover:bg-slate-950 transition"
-                  >
-                    <td className="px-4 md:px-6 py-4">{row.position}</td>
-                    <td className="px-4 md:px-6 py-4">
-                      <Link
-                        to={`/team/${row.team.id}`}
-                        className="flex items-center gap-3 text-white hover:underline"
-                      >
-                        <img
-                          src={row.team.crest || row.team.crestUrl}
-                          alt={`${row.team.name} crest`}
-                          className="w-6 h-6 object-contain"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none"; // hide broken image
-                          }}
-                        />
-                        <span>{row.team.name}</span>
-                      </Link>
-                    </td>
-                    <td className="text-center px-2 md:px-3 py-4">
-                      {row.playedGames}
-                    </td>
-                    <td className="text-center px-2 md:px-3 py-4">{row.won}</td>
-                    <td className="text-center px-2 md:px-3 py-4">
-                      {row.draw}
-                    </td>
-                    <td className="text-center px-2 md:px-3 py-4">
-                      {row.lost}
-                    </td>
-                    <td className="text-center px-2 md:px-3 py-4">
-                      {row.goalDifference}
-                    </td>
-                    <td className="text-center px-2 md:px-3 py-4 font-semibold text-white">
-                      {row.points}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {selectedTeam ? (
+            <Link to={`/club/${selectedTeam.id}`} className="text-sm font-medium text-white hover:text-slate-200">
+              Back to {selectedTeam.shortName || selectedTeam.name} →
+            </Link>
+          ) : null}
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          {Object.values(LEAGUES).map((league) => (
+            <button
+              key={league.code}
+              type="button"
+              onClick={() => setLeagueCode(league.code)}
+              className={`rounded-full border px-4 py-2 text-sm transition ${leagueCode === league.code
+                  ? "border-white bg-white text-slate-950"
+                  : "border-white/10 bg-white/5 text-white hover:border-white/20"
+                }`}
+            >
+              {league.name}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-xl shadow-black/10 backdrop-blur-xl">
+        {standingsQuery.isLoading ? <div className="p-6 text-slate-300">Loading standings...</div> : null}
+        {standingsQuery.isError ? <div className="p-6 text-red-300">{standingsQuery.error?.message || "Failed to load standings."}</div> : null}
+
+        {!standingsQuery.isLoading && !standingsQuery.isError ? (
+          <div>
+            <div className="grid grid-cols-[72px_1fr_90px_90px] gap-3 border-b border-white/10 px-6 py-4 text-xs uppercase tracking-[0.18em] text-slate-400">
+              <div>Pos</div>
+              <div>Club</div>
+              <div>Pts</div>
+              <div>GD</div>
+            </div>
+
+            <div className="divide-y divide-white/8">
+              {table.map((row) => (
+                <div key={row.team.id} className="grid grid-cols-[72px_1fr_90px_90px] items-center gap-3 px-6 py-4 text-sm">
+                  <div className="font-medium text-white">{row.position}</div>
+                  <div className="flex min-w-0 items-center gap-3">
+                    {row.team?.crest ? <img src={row.team.crest} alt={`${row.team.name} crest`} className="h-6 w-6 object-contain" /> : null}
+                    <div className="truncate text-slate-200">{row.team.name}</div>
+                  </div>
+                  <div className="text-slate-100">{row.points}</div>
+                  <div className="text-slate-300">{row.goalDifference}</div>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
-
-        {!standingsQuery.isLoading &&
-          !standingsQuery.isError &&
-          !table.length && (
-            <div className="p-6 text-slate-300">No standings available.</div>
-          )}
-      </div>
+        ) : null}
+      </section>
     </div>
   );
 }
