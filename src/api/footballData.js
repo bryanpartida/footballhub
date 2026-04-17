@@ -42,6 +42,7 @@ export async function footballGet(path, params) {
 export const api = {
   competition: (code) => footballGet(`/competitions/${code}`),
   standings: (code) => footballGet(`/competitions/${code}/standings`),
+  scorers: (code, params) => footballGet(`/competitions/${code}/scorers`, params),
   matches: (code, params) =>
     footballGet(`/competitions/${code}/matches`, params),
   teams: (code) => footballGet(`/competitions/${code}/teams`),

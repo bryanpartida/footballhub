@@ -13,6 +13,7 @@ export function buildTeamContext({ team, scheduledMatches = [], finishedMatches 
 
     const standingRow = standings.find((row) => row.team?.id === team?.id) || null;
     const leader = standings[0] || null;
+    const second = standings[1] || null;
     const fourth = standings[3] || null;
     const relegationLine = standings[17] || null;
 
@@ -67,7 +68,12 @@ export function buildTeamContext({ team, scheduledMatches = [], finishedMatches 
         wins,
         draws,
         losses,
+        standings,
         standingRow,
+        leader,
+        second,
+        fourth,
+        relegationLine,
         cards,
     };
 }
